@@ -11,24 +11,43 @@ def get_db_connection():
 
 @app.route('/')
 def index():
+    filter_status = request.args.get('filter', 'all')
+
     conn = get_db_connection()
-    tasks = conn.execute('SELECT * FROM tasks').fetchall()
+
+    if filter_status == 'pending':
+        tasks = conn.execute('SELECT * FROM tasks WHERE status="Pending"').fetchall()
+    elif filter_status == 'done':
+        tasks = conn.execute('SELECT * FROM tasks WHERE status="Done"').fetchall()
+    else:
+        tasks = conn.execute('SELECT * FROM tasks').fetchall()
+
     conn.close()
-    return render_template('index.html', tasks=tasks)
+    return render_template('index.html', tasks=tasks, filter_status=filter_status)
 
 @app.route('/add', methods=('POST',))
 def add():
     task = request.form['task']
+    priority = request.form['priority']
+    due_date = request.form['due_date']
+
     conn = get_db_connection()
-    conn.execute('INSERT INTO tasks (task, status) VALUES (?, ?)', (task, 'Pending'))
+    conn.execute(
+        'INSERT INTO tasks (task, status, priority, due_date) VALUES (?, ?, ?, ?)',
+        (task, 'Pending', priority, due_date)
+    )
     conn.commit()
     conn.close()
     return redirect('/')
 
-@app.route('/complete/<int:id>')
-def complete(id):
+@app.route('/toggle/<int:id>')
+def toggle(id):
     conn = get_db_connection()
-    conn.execute('UPDATE tasks SET status="Done" WHERE id=?', (id,))
+    task = conn.execute('SELECT status FROM tasks WHERE id=?', (id,)).fetchone()
+
+    new_status = "Done" if task["status"] == "Pending" else "Pending"
+
+    conn.execute('UPDATE tasks SET status=? WHERE id=?', (new_status, id))
     conn.commit()
     conn.close()
     return redirect('/')
@@ -40,7 +59,6 @@ def delete(id):
     conn.commit()
     conn.close()
     return redirect('/')
-
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

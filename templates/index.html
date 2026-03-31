@@ -3,87 +3,41 @@
 <head>
     <title>Task Manager</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            display: flex;
-            justify-content: center;
-            margin-top: 50px;
-        }
+        body { font-family: Arial; background: #f4f6f9; }
+        .container { width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
+        h1 { text-align: center; }
 
-        .container {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            width: 400px;
-            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        form {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        input {
-            flex: 1;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+        input, select {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
         }
 
         button {
-            padding: 10px 15px;
-            border: none;
+            padding: 10px;
             background: #007bff;
             color: white;
-            border-radius: 5px;
-            cursor: pointer;
+            border: none;
+            width: 100%;
         }
 
-        button:hover {
-            background: #0056b3;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        li {
-            background: #f9f9f9;
-            margin-bottom: 10px;
+        .task {
+            margin-top: 10px;
             padding: 10px;
+            background: #f9f9f9;
             border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .done {
-            text-decoration: line-through;
-            color: gray;
-        }
+        .done { text-decoration: line-through; color: gray; }
 
-        .actions a {
-            margin-left: 10px;
+        .high { border-left: 5px solid red; }
+        .medium { border-left: 5px solid orange; }
+        .low { border-left: 5px solid green; }
+
+        .filters a {
+            margin: 5px;
             text-decoration: none;
-            font-size: 14px;
         }
-
-        .done-btn {
-            color: green;
-        }
-
-        .delete-btn {
-            color: red;
-        }
-
     </style>
 </head>
 <body>
@@ -92,24 +46,37 @@
     <h1>📋 Task Manager</h1>
 
     <form action="/add" method="post">
-        <input type="text" name="task" placeholder="Enter your task..." required>
-        <button type="submit">Add</button>
+        <input type="text" name="task" placeholder="Task" required>
+
+        <select name="priority">
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+        </select>
+
+        <input type="date" name="due_date">
+
+        <button>Add Task</button>
     </form>
 
-    <ul>
-        {% for task in tasks %}
-        <li>
-            <span class="{{ 'done' if task['status']=='Done' else '' }}">
-                {{ task['task'] }}
-            </span>
-            <div class="actions">
-                <a class="done-btn" href="/complete/{{ task['id'] }}">✔</a>
-                <a class="delete-btn" href="/delete/{{ task['id'] }}">✖</a>
-            </div>
-        </li>
-        {% endfor %}
-    </ul>
+    <div class="filters">
+        <a href="/">All</a>
+        <a href="/?filter=pending">Pending</a>
+        <a href="/?filter=done">Done</a>
+    </div>
 
+    {% for task in tasks %}
+    <div class="task {{ task['priority']|lower }}">
+        <span class="{{ 'done' if task['status']=='Done' else '' }}">
+            {{ task['task'] }}
+        </span>
+        <br>
+        <small>Priority: {{ task['priority'] }} | Due: {{ task['due_date'] }}</small>
+        <br>
+        <a href="/toggle/{{ task['id'] }}">Toggle</a>
+        <a href="/delete/{{ task['id'] }}">Delete</a>
+    </div>
+    {% endfor %}
 </div>
 
 </body>

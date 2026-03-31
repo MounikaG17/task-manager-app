@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .done {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        .actions a {
+            margin-left: 10px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .done-btn {
+            color: green;
+        }
+
+        .delete-btn {
+            color: red;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📋 Task Manager</h1>
+
+    <form action="/add" method="post">
+        <input type="text" name="task" placeholder="Enter your task..." required>
+        <button type="submit">Add</button>
+    </form>
+
+    <ul>
+        {% for task in tasks %}
+        <li>
+            <span class="{{ 'done' if task['status']=='Done' else '' }}">
+                {{ task['task'] }}
+            </span>
+            <div class="actions">
+                <a class="done-btn" href="/complete/{{ task['id'] }}">✔</a>
+                <a class="delete-btn" href="/delete/{{ task['id'] }}">✖</a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+
+</div>
+
+</body>
+</html>
